@@ -76,6 +76,17 @@ p+p{margin-top:14px}
 .gallery img{display:block;width:100%;height:190px;object-fit:cover}
 .gallery figcaption{padding:10px 14px;font-size:.9rem;color:var(--muted)}
 
+.gallery img{cursor:zoom-in;transition:filter .2s}
+.gallery img:hover{filter:brightness(1.08)}
+dialog.lb{border:0;background:transparent;max-width:100vw;max-height:100vh;width:100vw;height:100vh;padding:0;color:#fff}
+dialog.lb::backdrop{background:rgba(4,14,22,.92)}
+.lb-in{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:56px 64px 24px;gap:14px}
+.lb-in img{max-width:100%;max-height:calc(100vh - 140px);object-fit:contain;border-radius:3px}
+.lb-in p{max-width:70ch;text-align:center;font-size:.95rem}
+.lb button{position:absolute;background:rgba(255,255,255,.14);color:#fff;border:0;width:44px;height:44px;border-radius:50%;font-size:1.5rem;cursor:pointer}
+.lb button:hover{background:rgba(255,255,255,.28)}
+.lb .x{top:14px;right:14px}.lb .pv{left:12px;top:50%}.lb .nx{right:12px;top:50%}
+@media (max-width:700px){.lb-in{padding:56px 12px 20px}.lb .pv,.lb .nx{top:auto;bottom:14px}}
 footer{margin-top:64px;background:var(--deep);color:#cfe0e6;text-align:center;padding:24px;font-size:.9rem}
 
 @media (max-width:700px){
@@ -252,6 +263,36 @@ footer{margin-top:64px;background:var(--deep);color:#cfe0e6;text-align:center;pa
 </main>
 
 <footer>© 2026 Ranjan Kumar Sahu</footer>
+
+<dialog class="lb" id="lb" aria-label="Photo viewer">
+  <button class="x" aria-label="Close">&times;</button>
+  <button class="pv" aria-label="Previous photo">&#8249;</button>
+  <button class="nx" aria-label="Next photo">&#8250;</button>
+  <div class="lb-in"><img id="lb-img" alt=""><p id="lb-cap"></p></div>
+</dialog>
+
+<script>
+// Click a gallery photo to view it full size
+(function(){
+  var dlg=document.getElementById('lb'),im=document.getElementById('lb-img'),cap=document.getElementById('lb-cap');
+  var pics=[].slice.call(document.querySelectorAll('.gallery img')),idx=0;
+  function show(i){
+    idx=(i+pics.length)%pics.length;
+    im.src=pics[idx].src;im.alt=pics[idx].alt;
+    var c=pics[idx].parentNode.querySelector('figcaption');cap.textContent=c?c.textContent:'';
+  }
+  pics.forEach(function(p,i){
+    p.tabIndex=0;p.setAttribute('role','button');
+    p.addEventListener('click',function(){show(i);dlg.showModal()});
+    p.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();show(i);dlg.showModal()}});
+  });
+  dlg.querySelector('.x').onclick=function(){dlg.close()};
+  dlg.querySelector('.pv').onclick=function(){show(idx-1)};
+  dlg.querySelector('.nx').onclick=function(){show(idx+1)};
+  dlg.addEventListener('click',function(e){if(e.target===dlg||e.target.classList.contains('lb-in'))dlg.close()});
+  dlg.addEventListener('keydown',function(e){if(e.key==='ArrowLeft')show(idx-1);if(e.key==='ArrowRight')show(idx+1)});
+})();
+</script>
 
 <script>
 // Highlight the nav item for the section currently in view
